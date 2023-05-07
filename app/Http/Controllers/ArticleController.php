@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ArticleController extends Controller
 {
@@ -23,11 +24,10 @@ class ArticleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-   public function create(Request $request)
+    public function create()
     {
         return view('articles.create');
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -35,7 +35,7 @@ class ArticleController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-      public function store(Request $request)
+    public function store(Request $request)
     {
         if ($request->file('image')) {
             $image_name = $request->file('image')->store('images', 'public');
@@ -66,9 +66,11 @@ class ArticleController extends Controller
      * @param  \App\Models\Article  $article
      * @return \Illuminate\Http\Response
      */
-    public function edit(Article $article)
+    public function edit($id)
     {
-        //
+        $article = Article::find($id);
+
+        return view('articles.edit', ['article' => $article]);
     }
 
     /**
@@ -95,7 +97,6 @@ class ArticleController extends Controller
         return 'Artikel berhasil diubah';
     }
 
-
     /**
      * Remove the specified resource from storage.
      *
@@ -105,5 +106,12 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         //
+    }
+
+    public function cetak_pdf()
+    {
+        $articles = Article::all();
+        $pdf = PDF::loadView('articles.articles_pdf', ['articles' => $articles]);
+        return $pdf->stream();
     }
 }
